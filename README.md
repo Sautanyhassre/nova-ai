@@ -1,6 +1,9 @@
 # NOVA AI — Sovereign Intelligence Platform (India First)
 *One intelligence. Every possibility.*
 
+[![Continuous Integration & Verification](https://github.com/Sautanyhassre/nova-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Sautanyhassre/nova-ai/actions/workflows/ci.yml)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Sautanyhassre/nova-ai)
+
 ## Overview
 **NOVA AI** is a production-grade, all-in-one artificial intelligence and creative ecosystem built for India's digital future and global scale. The platform unifies 17 specialized studios under a cohesive, high-performance web experience.
 
