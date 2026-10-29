@@ -546,6 +546,77 @@ Think of software like dining at a restaurant:
 **How to Use (Quick & Easy):**  
 Massage into wet scalp for **2 minutes**, then rinse with cool water.`;
       }
+      // Branch: Trigonometry & Math Professor (Class 10)
+      else if (
+        lowerPrompt.includes('trig') ||
+        lowerPrompt.includes('trigonometry') ||
+        (lowerPrompt.includes('math') && (lowerPrompt.includes('prof') || lowerPrompt.includes('teach') || lowerPrompt.includes('student') || lowerPrompt.includes('10th')))
+      ) {
+        responseBody = `### 📐 Welcome to Class! Let's Master 10th Grade Trigonometry
+
+Hello! Come on in, take a seat. I know seeing words like *Sine*, *Cosine*, and *Tangent* on the blackboard can make trigonometry feel like a secret code. But let me tell you a secret: **Trigonometry is simply the science of measuring triangles.** 
+
+In fact, the word comes from Greek:
+- **Tri** = Three
+- **Gon** = Sides / Angles
+- **Metron** = Measure
+
+If you understand **one single shape**—the **Right-Angled Triangle**—you will easily master your 10th grade math. Let’s break it down step-by-step!
+
+---
+
+### 1. The Three Sides of the Triangle
+Imagine a right-angled triangle with an angle we call **θ (Theta)**:
+1. **Hypotenuse (H)**: The longest side, always directly opposite the 90° right angle.
+2. **Opposite / Perpendicular (P)**: The side sitting right across from your angle θ.
+3. **Adjacent / Base (B)**: The side touching your angle θ (the ground/base).
+
+---
+
+### 2. The Famous Trio: sin, cos, and tan
+Think of these as 3 simple formulas that connect the angle to the lengths of the sides:
+
+$$\\sin(\\theta) = \\frac{\\text{Opposite (P)}}{\\text{Hypotenuse (H)}}$$
+$$\\cos(\\theta) = \\frac{\\text{Adjacent (B)}}{\\text{Hypotenuse (H)}}$$
+$$\\tan(\\theta) = \\frac{\\text{Opposite (P)}}{\\text{Adjacent (B)}}$$
+
+💡 **The Classic Memory Trick:**
+- **S**ome **P**eople **H**ave $\\to \\sin = \\frac{P}{H}$
+- **C**urly **B**rown **H**air $\to \\cos = \\frac{B}{H}$
+- **T**hrough **P**roper **B**rushing $\to \\tan = \\frac{P}{B}$
+
+*(Or simply remember: **SOH - CAH - TOA**!)*
+
+---
+
+### 3. A Real-Life Example: Measuring a Tall Tree 🌴
+Suppose you are standing **10 meters** away from a tall tree (*Base = 10 m*).
+You look up at the top of the tree at an angle of **45°**. How tall is the tree (*Perpendicular = Height*)?
+
+1. We know: **Base = 10m**, **Angle θ = 45°**, and we want **Height (P)**.
+2. Which formula connects P and B? **tan(θ)**!
+3. $\\tan(45^\\circ) = \\frac{\\text{Height}}{10}$
+4. Since $\\tan(45^\\circ) = 1$:
+   $$1 = \\frac{\\text{Height}}{10} \\implies \\text{Height} = 10\\text{ meters}!$$
+
+Just like that, without climbing the tree, you know it is exactly 10 meters tall!
+
+---
+
+### 4. The 3 Golden Trigonometric Identities for Class 10
+Keep these on your fingertips for solving proofs:
+1. **$\\sin^2\\theta + \\cos^2\\theta = 1$**
+2. **$1 + \\tan^2\\theta = \\sec^2\\theta$**
+3. **$1 + \\cot^2\\theta = \\csc^2\\theta$**
+
+---
+
+### 👨‍🏫 Your Turn! Quick Practice Check:
+If in a right triangle, $\\sin\\theta = \\frac{3}{5}$, what is $\\cos\\theta$?
+*(Hint: In a 3-4-5 right triangle, if the Opposite is 3 and Hypotenuse is 5, the Base is 4!)*
+
+Tell me your answer, or ask me about any specific identity or problem you want to solve next!`;
+      }
       // Branch: India, GST, UPI
       else if (
         lowerPrompt.includes('gst') ||
@@ -563,36 +634,39 @@ Massage into wet scalp for **2 minutes**, then rinse with cool water.`;
       }
       // Branch: Dynamic Fallback for Any Other Doubt
       else {
-        responseBody = `### 💡 How to Approach: "${lastMessage}"
+        const isCodeRequest = lowerPrompt.includes('code') || lowerPrompt.includes('program') || lowerPrompt.includes('function') || lowerPrompt.includes('script') || lowerPrompt.includes('bug');
+        
+        responseBody = `### 💡 Understanding: "${lastMessage}"
 
 Here is a clear, simple step-by-step breakdown designed so anyone can understand and take action immediately.
 
 ---
 
-#### 1. The Core Idea in Everyday Words
-Think of this problem in three simple stages:
-- **Input**: What information or requirements you start with.
-- **Process**: The step-by-step actions required to solve it.
-- **Output**: The final result you want to see.
+#### 1. The Core Concept in Everyday Words
+Think of this in three simple stages:
+- **The Starting Point**: Understanding the exact question or requirement.
+- **The Process**: Breaking down the solution into simple, logical steps.
+- **The Result**: Verifying the outcome to make sure it matches what you need.
 
 ---
 
-#### 2. Sequential Step-by-Step Actions
+#### 2. Sequential Step-by-Step Breakdown
 
 1. **Step 1: Clarify the Goal**  
-   Before writing any code or taking action, clearly state what the expected end-result should look like.
+   Clearly define the expected result before jumping into details.
    
-2. **Step 2: Start with the Simplest Example**  
-   Never try to solve the hardest edge cases first. Test with the most basic numbers, inputs, or steps to confirm the foundation works.
+2. **Step 2: Start with the Simplest Foundation**  
+   Never start with the most complex cases first. Build from the fundamentals up.
 
-3. **Step 3: Build & Verify Incrementally**  
-   Add one feature at a time, check if it behaves as expected, and verify each stage before moving forward.
+3. **Step 3: Test & Refine**  
+   Check each part step by step to ensure accuracy and clarity.
 
 ---
 
-#### 3. Practical Example & Next Steps
-If you want to see a full, working code example or a specific implementation for this in **Python**, **JavaScript**, or **TypeScript**, just type:
-> *"Show me the code for this in Python"* or *"Explain this with an everyday real-world example"*!`;
+#### 3. Next Steps
+${isCodeRequest 
+  ? `If you want to see a full, working code implementation for this in **Python**, **JavaScript**, or **TypeScript**, just let me know!` 
+  : `Feel free to ask a follow-up question, ask for a real-world example, or request a deeper dive into any part of this!`}`;
       }
     }
 
