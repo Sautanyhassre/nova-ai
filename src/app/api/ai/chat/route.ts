@@ -191,7 +191,7 @@ You never sound like a robotic handbook or generic template.
           const fetchedText = await externalRes.text();
           if (
             fetchedText &&
-            fetchedText.length > 50 &&
+            fetchedText.length > 5 &&
             !fetchedText.includes('Free limit reached') &&
             !fetchedText.includes('rate limit') &&
             !fetchedText.includes('pollen key')
