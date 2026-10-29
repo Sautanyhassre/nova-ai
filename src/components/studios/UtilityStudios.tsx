@@ -298,12 +298,12 @@ export const UtilityStudios: React.FC<UtilityStudiosProps> = ({ view, onSelectTe
             <div className="space-y-3">
               <div>
                 <label className="text-[11px] font-semibold text-slate-400 block mb-1">
-                  Google Gemini API Key (Optional — Free from Google AI Studio)
+                  AI Brain Key (Google Gemini or Groq — Free)
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
                     type="password"
-                    placeholder="AIzaSy..."
+                    placeholder="AIzaSy... (Gemini) or gsk_... (Groq)"
                     value={geminiKeyInput}
                     onChange={(e) => setGeminiKeyInput(e.target.value)}
                     className="flex-1 bg-[#161a25] border border-[#262c3e] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
@@ -323,7 +323,7 @@ export const UtilityStudios: React.FC<UtilityStudiosProps> = ({ view, onSelectTe
                   </button>
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  NOVA works 100% free with the built-in Sovereign Engine. Adding your key unlocks direct Gemini 1.5 Pro AI for any question.
+                  Supports Google Gemini (aistudio.google.com) and Groq (console.groq.com/keys). Both are 100% free with human-level reasoning.
                 </p>
               </div>
               <div>

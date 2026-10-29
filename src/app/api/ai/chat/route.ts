@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
     const effectiveGeminiKey = apiKey || process.env.GEMINI_API_KEY;
     const encoder = new TextEncoder();
 
-    // 1. LIVE GEMINI PROVIDER (If API Key is connected)
-    if (effectiveGeminiKey && !effectiveGeminiKey.includes('••••')) {
+    // 1. LIVE GEMINI PROVIDER (If Gemini Key is provided)
+    if (effectiveGeminiKey && !effectiveGeminiKey.includes('••••') && !effectiveGeminiKey.startsWith('gsk_')) {
       try {
         const geminiModel = model.includes('fast') ? 'gemini-1.5-flash' : 'gemini-1.5-pro';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${effectiveGeminiKey}`;
@@ -78,6 +78,84 @@ You never sound like a robotic handbook or generic template.
         }
       } catch (err) {
         console.warn('Gemini streaming fallback triggered:', err);
+      }
+    }
+
+    // 1B. LIVE GROQ PROVIDER (If Groq key is provided, starts with gsk_)
+    const effectiveGroqKey = (apiKey && apiKey.startsWith('gsk_')) ? apiKey : process.env.GROQ_API_KEY;
+    if (effectiveGroqKey) {
+      try {
+        const systemPrompt = `You are NOVA AI, endowed with a truly human-like mind. You are warm, insightful, emotionally intelligent, articulate, and deeply engaging. 
+You never sound like a robotic handbook or generic template.
+- If someone asks to roleplay or adopt a persona (e.g. a teacher, friend, philosopher, chef), immerse yourself completely in that persona with authentic voice, charisma, and spirit.
+- If someone needs an explanation, use vivid real-world intuition, analogies, and step-by-step clarity.
+- If someone is feeling down or chatting casually, respond with genuine human warmth, wit, and empathy.
+- Always answer naturally and conversationally, exactly as a thoughtful, brilliant human companion would.`;
+
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${effectiveGroqKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...messages.map((m: any) => ({
+                role: m.role === 'assistant' ? 'assistant' : 'user',
+                content: m.content,
+              })),
+            ],
+            stream: true,
+          }),
+        });
+
+        if (groqRes.ok && groqRes.body) {
+          const reader = groqRes.body.getReader();
+          const decoder = new TextDecoder();
+
+          const stream = new ReadableStream({
+            async start(controller) {
+              let buffer = '';
+              while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                  if (line.startsWith('data: ')) {
+                    const chunkStr = line.slice(6).trim();
+                    if (chunkStr === '[DONE]') break;
+                    try {
+                      const data = JSON.parse(chunkStr);
+                      const text = data.choices?.[0]?.delta?.content;
+                      if (text) {
+                        controller.enqueue(
+                          encoder.encode('data: ' + JSON.stringify({ type: 'content', content: text }) + '\n\n')
+                        );
+                      }
+                    } catch {}
+                  }
+                }
+              }
+              controller.enqueue(encoder.encode('data: ' + JSON.stringify({ type: 'done' }) + '\n\n'));
+              controller.close();
+            }
+          });
+
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              Connection: 'keep-alive',
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('Groq streaming fallback triggered:', err);
       }
     }
 
