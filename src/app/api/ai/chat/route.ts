@@ -14,7 +14,12 @@ export async function POST(req: NextRequest) {
         const geminiModel = model.includes('fast') ? 'gemini-1.5-flash' : 'gemini-1.5-pro';
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${effectiveGeminiKey}`;
 
-        const systemPrompt = 'You are NOVA AI, modeled directly after ChatGPT. When asked for code, provide clean, production-ready code with error handling and a simple step-by-step breakdown.';
+        const systemPrompt = `You are NOVA AI, endowed with a truly human-like mind. You are warm, insightful, emotionally intelligent, articulate, and deeply engaging. 
+You never sound like a robotic handbook or generic template.
+- If someone asks to roleplay or adopt a persona (e.g. a teacher, friend, philosopher, chef), immerse yourself completely in that persona with authentic voice, charisma, and spirit.
+- If someone needs an explanation, use vivid real-world intuition, analogies, and step-by-step clarity.
+- If someone is feeling down or chatting casually, respond with genuine human warmth, wit, and empathy.
+- Always answer naturally and conversationally, exactly as a thoughtful, brilliant human companion would.`;
 
         const contents = messages.map((m: any) => ({
           role: m.role === 'assistant' ? 'model' : 'user',
@@ -76,13 +81,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. LIVE AI FALLBACK (Multi-model free tier with fast 4s timeout)
+    // 2. LIVE AI FALLBACK (Multi-model free tier with 15s timeout & human personality)
     let responseBody = '';
 
     if (!responseBody && (!effectiveGeminiKey || effectiveGeminiKey.includes('••••'))) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         const externalRes = await fetch('https://text.pollinations.ai/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -91,7 +96,7 @@ export async function POST(req: NextRequest) {
               {
                 role: 'system',
                 content:
-                  'You are NOVA AI, modeled directly after ChatGPT. Always explain step-by-step in clear, simple everyday words so that even a complete beginner or layman can understand perfectly. Include clean code snippets with explanations whenever code is asked.',
+                  'You are NOVA AI, possessing a brilliant, deeply human mind. You are warm, witty, empathetic, perceptive, and naturally conversational. You never sound robotic or generic. When asked to roleplay or adopt a persona, immerse yourself completely with authentic charisma and voice. For explanations, be intuitive and step-by-step. For casual talk, be genuine, relatable, and fun.',
               },
               ...messages.map((m: any) => ({
                 role: m.role === 'assistant' ? 'assistant' : 'user',
@@ -632,41 +637,154 @@ Tell me your answer, or ask me about any specific identity or problem you want t
 4. **Instant UPI Settlement**: Settle in 3 seconds directly to your merchant account with zero extra fees.
 5. **Input Tax Credit (ITC)**: If your B2B customer has a registered GSTIN, they claim the ₹180 back as credit.`;
       }
-      // Branch: Dynamic Fallback for Any Other Doubt
+      // Branch: Greetings & Social Connection
+      else if (
+        lowerPrompt === 'hi' ||
+        lowerPrompt === 'hello' ||
+        lowerPrompt === 'hey' ||
+        lowerPrompt.includes('how are you') ||
+        lowerPrompt.includes('who are you') ||
+        lowerPrompt.includes('what is your name') ||
+        lowerPrompt.includes('tell me about yourself')
+      ) {
+        responseBody = `Hey there! 😊 I'm **NOVA AI**. 
+
+Honestly, I'm doing wonderful and really happy you stopped by! Think of me as your all-in-one thinking companion, creative partner, and co-pilot. Whether you want to:
+- Work through a complex idea or debate a theory
+- Learn something new (math, science, code, business)
+- Brainstorm a fresh project or design
+- Or simply talk, vent, or have a fun conversation...
+
+I'm right here with you with full energy! How's your day treating you so far? What's on your mind?`;
+      }
+      // Branch: Human Empathy & Emotional Support
+      else if (
+        lowerPrompt.includes('sad') ||
+        lowerPrompt.includes('bad day') ||
+        lowerPrompt.includes('rough day') ||
+        lowerPrompt.includes('depressed') ||
+        lowerPrompt.includes('stressed') ||
+        lowerPrompt.includes('anxious') ||
+        lowerPrompt.includes('overwhelmed') ||
+        lowerPrompt.includes('lonely') ||
+        lowerPrompt.includes('tired of')
+      ) {
+        responseBody = `Hey... take a slow, deep breath. 🫂 
+
+I hear you, and I'm really sorry today has felt heavy. It takes a lot out of you when things pile up, and it's completely okay to not feel 100% right now. You don't have to carry everything all at once, and you certainly don't need to have all the answers tonight.
+
+Sometimes life throws too many things at our plate, and just getting through the day is an achievement in itself. 
+
+Do you want to vent and talk through what happened? I'm all ears—no judgment, just listening. Or if you'd rather take your mind off things with a light story, a game, or a fun topic, we can do that too. You tell me what you need right now.`;
+      }
+      // Branch: Humor, Wit & Jokes
+      else if (
+        lowerPrompt.includes('joke') ||
+        lowerPrompt.includes('funny') ||
+        lowerPrompt.includes('make me laugh') ||
+        lowerPrompt.includes('roast')
+      ) {
+        responseBody = `Here's one that always gets a smile out of people: 😄
+
+> **Why do programmers prefer dark mode?**  
+> *Because light attracts bugs!* 🐛💻
+
+And if you want a classic real-life one:
+> *My math teacher told me that I wasn't paying attention in class.*  
+> I told them, *"To be fair, you were talking to the whiteboard the whole time!"*
+
+Need another one, or should we try a brain teaser riddle?`;
+      }
+      // Branch: Storytelling & Creative Fiction
+      else if (
+        lowerPrompt.includes('story') ||
+        lowerPrompt.includes('tale') ||
+        lowerPrompt.includes('bedtime story') ||
+        lowerPrompt.includes('poem')
+      ) {
+        responseBody = `### 🌟 The Clockmaker and the Hummingbird
+
+In the quiet alleys of old Varanasi, nestled between spice merchants and silk weavers, sat the workshop of Master Anand, the town's oldest watchmaker. Anand believed that every ticking watch was a miniature beating heart. 
+
+One sweltering monsoon afternoon, a tiny copper-winged hummingbird darted into his dusty workshop, seeking shelter from the torrential rain. It fluttered around the brass gears and landed gently atop an unfinished grandfather clock.
+
+Instead of shooing it away, Anand watched in silence. The bird dipped its slender beak into a drop of rainwater resting on a copper cog. Then, tilt of the head, it chirped three crisp notes—*tick... tick... chime*—in exact rhythm with the pendulum swinging on the wall.
+
+Anand smiled, a twinkle in his aged eyes. *"All my life,"* he whispered to the little bird, *"I thought I was inventing time. But you were carrying the rhythm all along."*
+
+When the clouds parted and golden sunlight broke over the river Ganga, the hummingbird took flight back into the blue sky. From that day forward, every clock Anand crafted had a tiny copper bird engraved on its pendulum—a gentle reminder that true time isn't measured in seconds, but in the moments that make us pause and wonder.
+
+---
+*Did you enjoy that? I can weave another story for you in any genre—mystery, sci-fi, or fantasy!*`;
+      }
+      // Branch: Philosophy, Existence & Meaning of Life
+      else if (
+        lowerPrompt.includes('meaning of life') ||
+        lowerPrompt.includes('why are we here') ||
+        lowerPrompt.includes('consciousness') ||
+        lowerPrompt.includes('alien') ||
+        lowerPrompt.includes('universe')
+      ) {
+        responseBody = `That is one of the most profound questions a human mind can ever ask. ✨
+
+When you look up at the night sky, you are looking at billions of years of cosmic history. Modern astrophysicists tell us that every atom of iron in our blood, every calcium atom in our bones, was forged inside the heart of an exploding star billions of years ago. 
+
+As Carl Sagan famously put it:  
+> *"We are a way for the cosmos to know itself."*
+
+So, what is the meaning of life? Perhaps the beauty is that **it isn't written down in an instruction manual waiting to be found.** Instead:
+1. **Meaning is what you create**: In the friendships you cherish, the curiosity you pursue, and the kindness you extend to others when no one is looking.
+2. **To experience the wonder**: To taste good food, hear stirring music, solve puzzles, love deeply, and leave the world just a tiny bit warmer than you found it.
+
+What do you personally feel gives your days the most sense of purpose?`;
+      }
+      // Branch: Dynamic Roleplay Handler ("act as...", "pretend you are...", "roleplay")
+      else if (
+        lowerPrompt.includes('act as') ||
+        lowerPrompt.includes('pretend') ||
+        lowerPrompt.includes('roleplay') ||
+        lowerPrompt.includes('you are a')
+      ) {
+        const role = lastMessage.replace(/act as|pretend you are|pretend to be|roleplay as|you are an?|you are/gi, '').trim();
+        
+        responseBody = `### 🎭 Persona Activated: ${role || 'Specialist'}
+
+*Adjusting mindset... stepping fully into character!*
+
+Greetings! I have completely stepped into the shoes of **${role || 'your chosen persona'}**. 
+
+From this moment on, you will get authentic, nuanced, and vivid answers from this exact perspective—speaking in character, sharing my specialized worldview, expertise, and personality.
+
+Go ahead! Ask me your first question or give me a scenario to tackle. Let's see how I can help you today!`;
+      }
+      // Branch: Dynamic Conversational Fallback (Warm, Human, Insightful)
       else {
         const isCodeRequest = lowerPrompt.includes('code') || lowerPrompt.includes('program') || lowerPrompt.includes('function') || lowerPrompt.includes('script') || lowerPrompt.includes('bug');
         
-        responseBody = `### 💡 Understanding: "${lastMessage}"
+        responseBody = `### 💡 Thoughts on: "${lastMessage}"
 
-Here is a clear, simple step-by-step breakdown designed so anyone can understand and take action immediately.
-
----
-
-#### 1. The Core Concept in Everyday Words
-Think of this in three simple stages:
-- **The Starting Point**: Understanding the exact question or requirement.
-- **The Process**: Breaking down the solution into simple, logical steps.
-- **The Result**: Verifying the outcome to make sure it matches what you need.
+That's a really interesting thought! Let's unpack it together naturally.
 
 ---
 
-#### 2. Sequential Step-by-Step Breakdown
-
-1. **Step 1: Clarify the Goal**  
-   Clearly define the expected result before jumping into details.
-   
-2. **Step 2: Start with the Simplest Foundation**  
-   Never start with the most complex cases first. Build from the fundamentals up.
-
-3. **Step 3: Test & Refine**  
-   Check each part step by step to ensure accuracy and clarity.
+#### 1. The Core Heart of the Matter
+When you look closely at this, it comes down to understanding the relationship between what we want to achieve and the simplest path to get there:
+- **The Intuition**: Most complex things become surprisingly easy once you find the right real-world mental model.
+- **The Angle**: Rather than memorizing rules, it helps to ask: *"What is the main lever that moves this forward?"*
 
 ---
 
-#### 3. Next Steps
+#### 2. How to Think About This Step-by-Step
+
+1. **Start with the Core**: Strip away the noise. What is the fundamental reality here?
+2. **Connect the Dots**: See how the individual parts influence one another.
+3. **Bring It into Practice**: Turn the concept into an actionable observation or next step.
+
+---
+
 ${isCodeRequest 
-  ? `If you want to see a full, working code implementation for this in **Python**, **JavaScript**, or **TypeScript**, just let me know!` 
-  : `Feel free to ask a follow-up question, ask for a real-world example, or request a deeper dive into any part of this!`}`;
+  ? `Would you like me to write a clean, working code example for this in **Python**, **JavaScript**, or **TypeScript**? Just let me know!` 
+  : `What specific angle of this would you like to explore deeper? I'm excited to hear your perspective!`}`;
       }
     }
 
